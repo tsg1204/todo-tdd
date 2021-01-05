@@ -4,6 +4,6 @@ const todoController = require('../controllers/todo.controller');
 
 router.post('/', todoController.createTodo);
 router.get('/', todoController.getTodos);
-router.get('/:id', todoController.getTodoById);
+router.get('/:todoId', todoController.getTodoById);
 
 module.exports = router;
