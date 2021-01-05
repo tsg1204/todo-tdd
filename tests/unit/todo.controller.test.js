@@ -6,6 +6,7 @@ const allTodos = require('../mock-data/all-todos.json');
 
 TodoModel.create = jest.fn();
 TodoModel.find = jest.fn();
+TodoModel.findById = jest.fn();
 
 let req, res, next;
 
@@ -13,6 +14,37 @@ beforeEach(() => {
   req = httpMocks.createRequest();
   res = httpMocks.createResponse();
   next = jest.fn();
+});
+
+describe('TodoController.getTodoById', () => {
+  beforeEach(() => {
+    req.params.todoId = '5ff39e4cc83b183780965dcf';
+  });
+
+  it('should have a getTodoById function', () => {
+    expect(typeof TodoController.getTodoById).toBe('function');
+  });
+
+  it('should call TodoModel.findById({})', async () => {
+    await TodoController.getTodoById(req, res, next);
+    expect(TodoModel.findById).toHaveBeenCalledWith('5ff39e4cc83b183780965dcf');
+  });
+
+  it('should return 200 response code and json body', async () => {
+    TodoModel.findById.mockReturnValue(newTodo);
+    await TodoController.getTodoById(req, res, next);
+    expect(res.statusCode).toBe(200);
+    expect(res._isEndCalled()).toBeTruthy();
+    expect(res._getJSONData()).toStrictEqual(newTodo);
+  });
+
+  it('should handle errors in findById', async () => {
+    const errorMessage = { message: 'No record with the requested id' };
+    const rejectedPromise = Promise.reject(errorMessage);
+    TodoModel.findById.mockReturnValue(rejectedPromise);
+    await TodoController.getTodoById(req, res, next);
+    expect(next).toBeCalledWith(errorMessage);
+  });
 });
 
 describe('TodoController.getTodos', () => {
