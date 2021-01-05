@@ -42,6 +42,23 @@ describe('TodoController.updateTodo', () => {
     expect(res._isEndCalled()).toBeTruthy();
     expect(res._getJSONData()).toStrictEqual(newTodo);
   });
+
+  it('should handle errors in findByIdAndUpdate', async () => {
+    const errorMessage = {
+      message: 'No record found with the requested id to update',
+    };
+    const rejectedPromise = Promise.reject(errorMessage);
+    TodoModel.findByIdAndUpdate.mockReturnValue(rejectedPromise);
+    await TodoController.updateTodo(req, res, next);
+    expect(next).toBeCalledWith(errorMessage);
+  });
+
+  it('should return 404 response code when item doesnt exist for update', async () => {
+    TodoModel.findByIdAndUpdate.mockReturnValue(null);
+    await TodoController.updateTodo(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
 });
 
 describe('TodoController.getTodoById', () => {
