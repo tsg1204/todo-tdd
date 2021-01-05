@@ -171,6 +171,14 @@ describe('TodoController.deleteTodo', () => {
     expect(TodoModel.findByIdAndDelete).toBeCalledWith(todoId);
   });
 
+  it('should return 200 response code and deleted todomodel', async () => {
+    TodoModel.findByIdAndDelete.mockReturnValue(newTodo);
+    await TodoController.deleteTodo(req, res, next);
+    expect(res.statusCode).toBe(200);
+    expect(res._isEndCalled()).toBeTruthy();
+    expect(res._getJSONData()).toStrictEqual(newTodo);
+  });
+
   it('should handle errors in findByIdAndDelete', async () => {
     const errorMessage = {
       message: 'No record found with the requested id to delete',

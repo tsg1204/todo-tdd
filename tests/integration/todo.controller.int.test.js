@@ -5,6 +5,8 @@ const newTodo = require('../mock-data/new-todo.json');
 const endpointUrl = '/todos/';
 
 let firstTodo, newTodoId;
+const nonExistingTodoId = '5d5fff416bef3c07ecf11f77';
+const testData = { title: 'Make integration test for PUT', done: true };
 
 describe(endpointUrl, () => {
   test('GET ' + endpointUrl, async () => {
@@ -53,12 +55,27 @@ describe(endpointUrl, () => {
   );
 
   test('PUT ' + endpointUrl + ':todoId', async () => {
-    const testData = { title: 'Make integration test for PUT', done: true };
     const response = await request(app)
       .put(endpointUrl + newTodoId)
       .send(testData);
     expect(response.statusCode).toBe(200);
     expect(response.body.title).toBe(testData.title);
     expect(response.body.done).toBe(testData.done);
+  });
+
+  test('DELETE', async () => {
+    const response = await request(app)
+      .delete(endpointUrl + newTodoId)
+      .send();
+    expect(response.statusCode).toBe(200);
+    expect(response.body.title).toBe(testData.title);
+    expect(response.body.done).toBe(testData.done);
+  });
+
+  test('HTTP DELETE 404', async () => {
+    const response = await request(app)
+      .delete(endpointUrl + nonExistingTodoId)
+      .send();
+    expect(response.statusCode).toBe(404);
   });
 });
