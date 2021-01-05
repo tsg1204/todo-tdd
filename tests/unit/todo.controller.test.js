@@ -159,3 +159,32 @@ describe('TodoController.createTodo', () => {
     expect(next).toBeCalledWith(errorMessage);
   });
 });
+
+describe('TodoController.deleteTodo', () => {
+  it('should have a deleteTodo function', () => {
+    expect(typeof TodoController.deleteTodo).toBe('function');
+  });
+
+  it('should call TodoModel.findByIdAndDelete({})', async () => {
+    req.params.todoId = todoId;
+    await TodoController.deleteTodo(req, res, next);
+    expect(TodoModel.findByIdAndDelete).toBeCalledWith(todoId);
+  });
+
+  it('should handle errors in findByIdAndDelete', async () => {
+    const errorMessage = {
+      message: 'No record found with the requested id to delete',
+    };
+    const rejectedPromise = Promise.reject(errorMessage);
+    TodoModel.findByIdAndDelete.mockReturnValue(rejectedPromise);
+    await TodoController.deleteTodo(req, res, next);
+    expect(next).toBeCalledWith(errorMessage);
+  });
+
+  it('should return 404 response code when item doesnt exist for delete', async () => {
+    TodoModel.findByIdAndDelete.mockReturnValue(null);
+    await TodoController.deleteTodo(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+});
